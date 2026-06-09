@@ -1,0 +1,129 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 68px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-100);
+  box-shadow: var(--shadow-sm);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logoMark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandText {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  font-family: var(--font-display);
+}
+
+.brandName {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: 0.5px;
+}
+
+.brandAccent {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--blue-primary);
+  letter-spacing: 0.5px;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+.navLink {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--gray-700);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--blue-primary);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.authButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnLogin {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--gray-300);
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btnLogin:hover,
+.btnLogin.active {
+  color: var(--blue-primary);
+  border-color: var(--blue-primary);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.btnSignup {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  padding: 8px 22px;
+  border-radius: var(--radius-full);
+  background: var(--blue-primary);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.btnSignup:hover,
+.btnSignup.activeSignup {
+  background: var(--blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-blue);
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+  }
+
+  .nav {
+    padding: 0 20px;
+  }
+}

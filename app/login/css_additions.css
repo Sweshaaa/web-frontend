@@ -1,0 +1,28 @@
+/* Server-side error banner (wrong password, duplicate email, etc.) */
+.serverError {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Inline field-level error message */
+.errorMsg {
+  color: #f87171;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Red border on invalid input */
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+/* Green border on valid input (e.g. matching confirm password) */
+.inputSuccess {
+  border-color: #22c55e !important;
+}
