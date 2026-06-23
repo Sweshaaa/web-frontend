@@ -1,14 +1,46 @@
-// lib/api/auth.api.ts
-// All auth-related API calls live here (Component → Action → Api pattern)
+import Cookies from 'js-cookie'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
-// ── Types ──────────────────────────────────────────────────────────────────
-export interface RegisterPayload {
-  fullName: string
+// ── Base request helper ────────────────────────────────────────────────────────
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
+  // use the same cookie name everywhere
+  const token = Cookies.get('accessToken')
+
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  }
+
+  // Do not set Content-Type for FormData
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json'
+  }
+
+  const res = await fetch(`${BASE}${path}`, {
+    ...options,
+    headers,
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data.message || 'Something went wrong.')
+  }
+
+  return data as T
+}
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+export interface User {
+  _id: string
+  name: string
   email: string
-  phone: string
-  password: string
+  avatar?: string
+  createdAt?: string
 }
 
 export interface LoginPayload {
@@ -16,60 +48,69 @@ export interface LoginPayload {
   password: string
 }
 
-export interface AuthUser {
-  id: string
-  fullName: string
+export interface RegisterPayload {
+  name: string
   email: string
-  phone: string
+  password: string
 }
 
-export interface RegisterResponse {
-  message: string
-  user: AuthUser
-}
-
-export interface LoginResponse {
-  message: string
+export interface AuthResponse {
+  success?: boolean
+  message?: string
   accessToken: string
-  user: AuthUser
+  user: User
 }
 
-export interface ApiError {
-  message: string | string[]
-  statusCode: number
-  error?: string
+interface ApiResponse<T> {
+  success: boolean
+  data: T
+  message?: string
 }
 
-// ── Helper ─────────────────────────────────────────────────────────────────
-async function handleResponse<T>(res: Response): Promise<T> {
-  const data = await res.json()
-  if (!res.ok) {
-    const err = data as ApiError
-    // NestJS validation errors come as an array — join them for display
-    const msg = Array.isArray(err.message)
-      ? err.message.join(', ')
-      : err.message
-    throw new Error(msg || 'Something went wrong')
-  }
-  return data as T
-}
-
-// ── Register ───────────────────────────────────────────────────────────────
-export async function registerUser(payload: RegisterPayload): Promise<RegisterResponse> {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+// ── Auth functions used by login/register pages ───────────────────────────────
+export async function loginUser(payload: LoginPayload): Promise<AuthResponse> {
+  return request<AuthResponse>('/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  return handleResponse<RegisterResponse>(res)
 }
 
-// ── Login ──────────────────────────────────────────────────────────────────
-export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+export async function registerUser(payload: RegisterPayload): Promise<AuthResponse> {
+  return request<AuthResponse>('/auth/register', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   })
-  return handleResponse<LoginResponse>(res)
+}
+
+// ── Auth API object used by profile/password pages ────────────────────────────
+export const authAPI = {
+  // GET /api/auth/whoami
+  whoami: async (): Promise<User> => {
+    const res = await request<ApiResponse<User>>('/auth/whoami')
+    return res.data
+  },
+
+  // PATCH /api/auth/update — profile fields + optional avatar file
+  updateProfile: async (formData: FormData): Promise<User> => {
+    const res = await request<ApiResponse<User>>('/auth/update', {
+      method: 'PATCH',
+      body: formData,
+    })
+    return res.data
+  },
+
+  // PATCH password update
+  updatePassword: async (payload: {
+    currentPassword: string
+    newPassword: string
+  }): Promise<{ success: boolean; message: string }> => {
+    const fd = new FormData()
+    fd.append('currentPassword', payload.currentPassword)
+    fd.append('newPassword', payload.newPassword)
+
+    return request('/auth/update', {
+      method: 'PATCH',
+      body: fd,
+    })
+  },
 }
